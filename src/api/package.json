@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/GoatFishes/utils#readme",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
+    "registry": "https://registry.npmjs.org/",
     "access": "public"
   }
 }
