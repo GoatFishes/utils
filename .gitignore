@@ -1,0 +1,7 @@
+node_modules/
+coverage/
+src/postgres/data
+
+package-lock.json
+.npmrc
+.DS_Store

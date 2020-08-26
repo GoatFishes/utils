@@ -1,0 +1,41 @@
+name: CI/CD for project
+on:
+  push:
+    branches:    
+        # Push events on master branch
+        - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run tests
+        run: make test
+        env:
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+          API_KEY_SECRET: ${{ secrets.API_KEY_SECRET }}
+        
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      
+      - name: Bump version and push tag
+        id: version_tag
+        uses: anothrNick/github-tag-action@1.17.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WITH_V: true
+          INITIAL_VERSION: 1.0.0
+
+
+      - name: Build and publish package
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" >> src/api/.npmrc
+          cd src/api/
+          npm version $PACKAGE_VERSION
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{  secrets.NPM_TOKEN  }}
+          PACKAGE_VERSION: ${{ steps.version_tag.outputs.new_tag }}
